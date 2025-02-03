@@ -8,4 +8,4 @@ app = FastAPI(debug=True)
 app.include_router(signup_router, prefix='/signup')
 
 # Include the login router to expose the /login endpoint
-app.include_router(login_router)
+app.include_router(login_router, prefix='/login')

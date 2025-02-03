@@ -22,7 +22,8 @@ class LoginResponse(BaseModel):
     session_token: str
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("", response_model=LoginResponse)
+
 def login(request: LoginRequest, db=Depends(get_db)):
     try:
         # Retrieve the user by username
