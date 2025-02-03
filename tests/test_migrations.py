@@ -52,3 +52,11 @@ def test_foreign_key_constraint(db_session):
             db_session.commit()
     finally:
         db_session.rollback()
+
+
+def test_user_default_role(db_session):
+    user = User(username='defaultrole', password_hash='hash', full_name='Default Role Test')
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    assert user.role == 'user'

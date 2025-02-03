@@ -10,6 +10,9 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
     creation_timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+    
+    # New column for user role with default value 'user'
+    role = Column(String, nullable=False, server_default='user')
 
 class Session(Base):
     __tablename__ = 'session'
