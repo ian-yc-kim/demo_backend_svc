@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from demo_backend_svc.routers.signup import router as signup_router
 from demo_backend_svc.routers.login import router as login_router
 from demo_backend_svc.routers.logout import router as logout_router
+from demo_backend_svc.routers.session import router as session_router
 
 app = FastAPI(debug=True)
 
@@ -13,3 +14,6 @@ app.include_router(login_router, prefix='/login')
 
 # Include the logout router to expose the /logout endpoint
 app.include_router(logout_router, prefix='/logout')
+
+# Include the session router to expose the /auth/session endpoint
+app.include_router(session_router, prefix='/auth')
