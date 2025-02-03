@@ -11,6 +11,8 @@ def test_valid_signup(client):
     data = response.json()
     assert "user_id" in data
     assert data["username"] == payload["username"]
+    assert "role" in data
+    assert data["role"] == "user"
 
 
 def test_duplicate_username(client):

@@ -41,6 +41,7 @@ class SignupRequest(BaseModel):
 class SignupResponse(BaseModel):
     user_id: str
     username: str
+    role: str
 
 # Updated route: removed duplicate '/signup' so that with prefix it resolves to '/signup'
 @router.post("", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
@@ -60,13 +61,14 @@ def signup(signup_data: SignupRequest, db: Session = Depends(get_db)) -> SignupR
             username=signup_data.username,
             password_hash=hashed_password.decode('utf-8'),
             full_name=signup_data.full_name,
-            creation_timestamp=datetime.utcnow()
+            creation_timestamp=datetime.utcnow(),
+            role='user'  # explicitly set role attribute to 'user'
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         logging.info(f"User created successfully: username={new_user.username}, user_id={new_user.user_id}")
-        return SignupResponse(user_id=new_user.user_id, username=new_user.username)
+        return SignupResponse(user_id=new_user.user_id, username=new_user.username, role=new_user.role)
     except HTTPException as http_exc:
         logging.error(http_exc, exc_info=True)
         raise http_exc
