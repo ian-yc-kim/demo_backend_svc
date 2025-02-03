@@ -42,7 +42,8 @@ class SignupResponse(BaseModel):
     user_id: str
     username: str
 
-@router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
+# Updated route: removed duplicate '/signup' so that with prefix it resolves to '/signup'
+@router.post("", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
 
 def signup(signup_data: SignupRequest, db: Session = Depends(get_db)) -> SignupResponse:
     try:
