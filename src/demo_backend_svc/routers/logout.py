@@ -1,36 +1,36 @@
 import logging
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, Depends, HTTPException, status, Header
+from sqlalchemy.orm import Session
 
+from demo_backend_svc.models.auth import Session as SessionModel
 from demo_backend_svc.models.base import get_db
-from demo_backend_svc.models.auth import Session
 
 router = APIRouter()
 
-@router.post("/logout")
-
-def logout(request: Request, db=Depends(get_db)):
-    """Endpoint to logout a user by invalidating the session token."""
-    token = request.headers.get("Authorization")
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing session token")
-    # Remove Bearer prefix if present
-    if token.startswith("Bearer "):
-        token = token[7:]
+@router.post("/")
+def logout(authorization: str = Header(None, alias="Authorization"), db: Session = Depends(get_db)):
+    if not authorization:
+        logging.error("Missing session token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing session token")
+    
+    # Extract token from the Authorization header; expect format: 'Bearer <token>'
+    token = authorization.replace("Bearer", "").strip()
+    
+    session_record = db.query(SessionModel).filter(SessionModel.session_token == token).first()
+    if not session_record:
+        logging.error("Invalid session token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token")
+    
+    if session_record.expiration_timestamp < datetime.utcnow():
+        logging.error("Session token expired")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session token expired")
+    
     try:
-        session_entry = db.query(Session).filter(Session.session_token == token).first()
-        if not session_entry:
-            raise HTTPException(status_code=401, detail="Invalid session token")
-        # Check if session is already expired
-        if session_entry.expiration_timestamp < datetime.utcnow():
-            raise HTTPException(status_code=401, detail="Session token expired")
-        # Invalidate the session by deleting the record
-        db.delete(session_entry)
+        db.delete(session_record)
         db.commit()
         return {"message": "Logout successful"}
-    except HTTPException as http_e:
-        raise http_e
     except Exception as e:
         logging.error(e, exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Server error")

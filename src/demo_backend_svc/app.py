@@ -6,14 +6,14 @@ from demo_backend_svc.routers.session import router as session_router
 
 app = FastAPI(debug=True)
 
-# Include the signup router with a prefix to expose the endpoint at /signup
-app.include_router(signup_router, prefix='/signup')
+# Include the signup router with a prefix to expose the endpoint at /auth/signup
+app.include_router(signup_router, prefix='/auth/signup')
 
-# Include the login router to expose the /login endpoint
-app.include_router(login_router, prefix='/login')
+# Include the login router to expose the /auth/login endpoint
+app.include_router(login_router, prefix='/auth/login')
 
-# Include the logout router to expose the /logout endpoint
-app.include_router(logout_router, prefix='/logout')
+# Include the logout router to expose the /auth/logout endpoint
+app.include_router(logout_router, prefix='/auth/logout')
 
-# Include the session router to expose the /auth/session endpoint
+# Include the session router to expose the /auth endpoint
 app.include_router(session_router, prefix='/auth')

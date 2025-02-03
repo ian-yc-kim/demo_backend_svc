@@ -29,7 +29,7 @@ def test_successful_login(client, db_session, create_user):
         "username": "testuser",
         "password": "correct_password"
     }
-    response = client.post("/login", json=login_data)
+    response = client.post("/auth/login", json=login_data)
     assert response.status_code == 200
     json_response = response.json()
     assert "session_token" in json_response
@@ -50,7 +50,7 @@ def test_failed_login_wrong_password(client, create_user):
         "username": "testuser",
         "password": "wrong_password"
     }
-    response = client.post("/login", json=login_data)
+    response = client.post("/auth/login", json=login_data)
     assert response.status_code == 401
     json_response = response.json()
     assert json_response["detail"] == "Invalid username or password"
@@ -62,7 +62,7 @@ def test_failed_login_nonexistent_user(client):
         "username": "nonexistent",
         "password": "any_password"
     }
-    response = client.post("/login", json=login_data)
+    response = client.post("/auth/login", json=login_data)
     assert response.status_code == 401
     json_response = response.json()
     assert json_response["detail"] == "Invalid username or password"

@@ -7,10 +7,7 @@ from fastapi.testclient import TestClient
 from demo_backend_svc.app import app
 from demo_backend_svc.models.auth import Session as SessionModel
 
-# Include the logout router for testing
-from demo_backend_svc.routers.logout import router as logout_router
-app.include_router(logout_router)
-
+# Removed redundant inclusion of logout_router because it is already included in app.py
 
 @pytest.fixture
 
@@ -40,7 +37,7 @@ def expired_session_token(db_session):
 
 def test_valid_logout(client, db_session, valid_session_token):
     # Perform logout with valid session token
-    response = client.post("/logout", headers={"Authorization": f"Bearer {valid_session_token}"})
+    response = client.post("/auth/logout", headers={"Authorization": f"Bearer {valid_session_token}"})
     assert response.status_code == 200
     data = response.json()
     assert data.get("message") == "Logout successful"
@@ -51,7 +48,7 @@ def test_valid_logout(client, db_session, valid_session_token):
 
 def test_invalid_token_logout(client):
     # Use an invalid token
-    response = client.post("/logout", headers={"Authorization": "Bearer invalid-token"})
+    response = client.post("/auth/logout", headers={"Authorization": "Bearer invalid-token"})
     assert response.status_code == 401
     data = response.json()
     assert "Invalid session token" in data.get("detail", "")
@@ -59,7 +56,7 @@ def test_invalid_token_logout(client):
 
 def test_missing_token_logout(client):
     # No Authorization header
-    response = client.post("/logout")
+    response = client.post("/auth/logout")
     assert response.status_code == 401
     data = response.json()
     assert "Missing session token" in data.get("detail", "")
@@ -67,7 +64,7 @@ def test_missing_token_logout(client):
 
 def test_expired_token_logout(client, db_session, expired_session_token):
     # Use an expired token
-    response = client.post("/logout", headers={"Authorization": f"Bearer {expired_session_token}"})
+    response = client.post("/auth/logout", headers={"Authorization": f"Bearer {expired_session_token}"})
     assert response.status_code == 401
     data = response.json()
     assert "Session token expired" in data.get("detail", "")
